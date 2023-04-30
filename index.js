@@ -16,15 +16,6 @@ app.get("/", (req, res)=>{
   res.send("hello to our fintech website");
 })
 
-app.get('/api/user/credit', (req, res) => {
-  User.find({ creditCardNumber: { $exists: true } }, (err, users) => {
-    if (err) {
-      res.status(500).send({ error: 'Internal Server Error' });
-    } else {
-      res.send(users);
-    }
-  });
-});
 
 app.listen(process.env.PORT, () => {
   console.log("Server listining on port " + process.env.PORT);

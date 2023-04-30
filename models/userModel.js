@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { isEmail } = require("validator");
-// const generateCreditCardNumber = require("./../helperFunctions/helper");
+// const {card} = require("../helperFunctions/helper");
 
 function generateCreditCardNumber() {
   // Generate 15 random digits

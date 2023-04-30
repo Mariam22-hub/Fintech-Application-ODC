@@ -23,4 +23,4 @@ const generateCreditCardNumber = () => {
     return digits + checksum;
   }
 
-  module.export  = {generateCreditCardNumber};
+  module.exports  = {generateCreditCardNumber};
