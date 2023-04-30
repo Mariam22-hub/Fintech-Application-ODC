@@ -6,23 +6,23 @@ const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      required: true,
+      required: [true,"please enter a first name"],
       trim: true,
     },
     lastName: {
       type: String,
-      required: true,
+      required: [true,"please enter a last name"],
       trim: true,
     },
     userName: {
       type: String,
-      required: true,
+      required: [true,"please enter a username"],
       trim: true,
       unique: true,
     },
     password: {
       type: String,
-      required: true,
+      required: [true,"please enter a password"],
       trim: true,
       minLength: 8,
     },

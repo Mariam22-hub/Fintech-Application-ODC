@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "1- npm init<br />\r 2- npm install express mongoose cors body-parser dotenv cryptr<br />",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -16,6 +16,15 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.1.0",
+    "nodemon": "^2.0.22",
     "validator": "^13.9.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahmedhussein74/ODC.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ahmedhussein74/ODC/issues"
+  },
+  "homepage": "https://github.com/ahmedhussein74/ODC#readme"
 }
