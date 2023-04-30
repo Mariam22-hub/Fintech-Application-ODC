@@ -1,6 +1,36 @@
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { isEmail } = require("validator");
+// const generateCreditCardNumber = require("./../helperFunctions/helper");
+
+function generateCreditCardNumber() {
+  // Generate 15 random digits
+  let digits = '';
+  for (let i = 0; i < 15; i++) {
+    digits += Math.floor(Math.random() * 10);
+  }
+
+  // Calculate checksum using Luhn algorithm
+  let sum = 0;
+  for (let i = 0; i < 15; i++) {
+    let digit = parseInt(digits[i]);
+    if ((i + 1) % 2 === 0) {
+      digit *= 2;
+      if (digit > 9) {
+        digit -= 9;
+      }
+    }
+    sum += digit;
+  }
+  let checksum = (10 - (sum % 10)) % 10;
+
+  // Return complete credit card number
+  console.log(digits + checksum.toString());
+  // let num = digits + checksum;
+
+  return (digits + checksum.toString());
+}
+
 
 const userSchema = new mongoose.Schema(
   {
@@ -43,6 +73,7 @@ const userSchema = new mongoose.Schema(
     },
     cardNumber: {
       type: String,
+      // trim: true
     },
     history: { type: Array, default: [] },
   },
@@ -52,6 +83,9 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
+
+  this.cardNumber = generateCreditCardNumber();
+  console.log(JSON.stringify(this.cardNumber))
   next();
 });
 

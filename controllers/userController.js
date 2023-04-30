@@ -51,12 +51,26 @@ const deleteUser = async (req, res) => {
   }
 };
 
+
+
 const signup = async (req, res) => {
   // 1- create user
   const user = await User.create(req.body);
   // 2- generate tokent
   const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
-  res.json({ data: user, token });
+  try{
+    res.status(201).json({ 
+      data: user, token
+     });
+  }
+  catch(e){
+    res.status(404).json({
+      status: "failed",
+      message: e
+    });
+  }
+
+
 };
 
 const login = async (req, res) => {
