@@ -12,6 +12,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api/user", UserRoute);
+app.get("/", (req, res)=>{
+  res.send("hello to our fintech website");
+})
 
 app.listen(process.env.PORT, () => {
   console.log("Server listining on port " + process.env.PORT);
