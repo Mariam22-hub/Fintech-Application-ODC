@@ -2,29 +2,29 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const secretKey = process.env.JWT_SECRET_KEY;
+// const secretKey = process.env.JWT_SECRET_KEY;
 
 //middleware function to ensure the authorization of users when transferring funds
-const authenticateToken = async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  console.log(authHeader)
+// const authenticateToken = async (req, res, next) => {
+//   const authHeader = req.headers['authorization'];
+//   console.log(authHeader)
 
-  const token = authHeader && authHeader.split(' ')[1];
-  console.log(token)
+//   const token = authHeader && authHeader.split(' ')[1];
+//   console.log(token)
 
-  if (token == null) {
-    return res.sendStatus(401);
-  }
+//   if (token == null) {
+//     return res.sendStatus(401);
+//   }
 
-  jwt.verify(token, secretKey, (err, user) => {
-    if (err) {
-      return res.sendStatus(403);
-    }
+//   jwt.verify(token, secretKey, (err, user) => {
+//     if (err) {
+//       return res.sendStatus(403);
+//     }
 
-    req.user = user;
-    next();
-  });
-}
+//     req.user = user;
+//     next();
+//   });
+// }
 
 const transfer = async (req,res) => {
   const { senderEmail, recepientEmail, amount } = req.body;
@@ -39,7 +39,7 @@ const transfer = async (req,res) => {
     const recipient = await User.findOne({email: recepientEmail});
     console.log(recipient)
 
-    if (!sender || !recipient) {
+    if (!sender || !recipient || recipient == sender) {
       return res.status(400).send({ error: 'Invalid sender or recipient' });
     }
 
@@ -160,6 +160,6 @@ module.exports = {
   deleteUser,
   signup,
   login,
-  authenticateToken,
+  // authenticateToken,
   transfer
 };

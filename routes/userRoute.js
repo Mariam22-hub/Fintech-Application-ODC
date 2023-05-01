@@ -1,5 +1,5 @@
 const router = require("express").Router();
-
+const {authenticateToken} = require("../middlewares/userMiddlewares");
 const {
   getUsers,
   getUser,
@@ -8,7 +8,7 @@ const {
   deleteUser,
   signup,
   login,
-  authenticateToken,
+  // authenticateToken,
   transfer,
 } = require("../controllers/userController");
 
