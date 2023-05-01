@@ -39,11 +39,11 @@ const transfer = async (req,res) => {
     const recipient = await User.findOne({email: recepientEmail});
     console.log(recipient)
 
-    if (!sender || !recipient || recipient == sender) {
+    if (!sender || !recipient || recipient.email === sender.email) {
       return res.status(400).send({ error: 'Invalid sender or recipient' });
     }
 
-    if (sender.balance < amount) {
+    if (sender.balance < amount ) {
       return res.status(400).send({ error: 'Insufficient funds' });
     }
 
