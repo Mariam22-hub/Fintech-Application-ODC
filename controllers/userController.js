@@ -81,19 +81,21 @@ const handleErrors = (err, username) => {
 
 
 const transfer = async (req,res) => {
-  const { senderEmail, recepientEmail, amount } = req.body;
-  console.log(senderEmail)
-  console.log(recepientEmail)
+  const { senderUsername, recipientUsername, amount } = req.body;
+  console.log(senderUsername)
+  console.log(recipientUsername)
   console.log(amount)
 
   try {
-    const sender = await User.findOne({email: senderEmail});
+    const sender = await User.findOne({userName: senderUsername});
     console.log(sender)
 
-    const recipient = await User.findOne({email: recepientEmail});
+    const recipient = await User.findOne({userName: recipientUsername});
     console.log(recipient)
 
-    if (!sender || !recipient || recipient.email === sender.email) {
+    if (!sender || !recipient || sender.userName === recipient.userName) {
+      // console.log(sender)
+      // console.log(recipient)
       return res.status(400).send({ error: 'Invalid sender or recipient' });
     }
 
@@ -109,7 +111,8 @@ const transfer = async (req,res) => {
 
     res.send({ 
       message: `Successfully transferred ${amount} from ${sender.userName} to ${recipient.userName}` ,
-      data: sender, recipient
+      SenderBalance: sender.balance,
+      RecepientBalance: recipient.balance
     });
   } 
   catch (err) {
@@ -154,6 +157,7 @@ const updateUser = async (req, res) => {
     const UpdatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
+
     res.json(UpdatedUser);
   } catch (error) {
     console.log(error);
@@ -180,13 +184,14 @@ const signup = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
 
     res.status(201).json({ 
-      data: user, token
+      data: user._id, token,
+      status: true
      });
   }
   catch(e){
     const err = handleErrors(e, req.body.email, req.body.userName)
     res.status(400).json({
-      status: "failed",
+      status: false,
       message: err
     });
   }

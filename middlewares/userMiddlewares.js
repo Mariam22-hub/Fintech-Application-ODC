@@ -3,6 +3,7 @@ const secretKey = process.env.JWT_SECRET_KEY;
 
 //middleware function to ensure the authorization of users when transferring funds
 const authenticateToken = async (req, res, next) => {
+  console.log("in the middleware")
     const authHeader = req.headers['authorization'];
     console.log(authHeader)
   
