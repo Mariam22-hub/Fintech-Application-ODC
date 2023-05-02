@@ -1,3 +1,6 @@
+// password mush contain special characters and atleast one uppercase 
+//try to check if the password already exists part
+
 require("dotenv").config();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -25,6 +28,57 @@ const User = require("../models/userModel");
 //     next();
 //   });
 // }
+
+const checkIfUserExists = async (username, email) => {
+  const userByUsername = await User.findOne({ username: username });
+  if (userByUsername) {
+    return "username already exists"; // username already exists
+  }
+  const userByemail = await User.findOne({ email: email });
+  
+  if (userByemail) {
+    return "email already exists"; // username already exists
+  }
+
+};
+
+const handleErrors = (err, username) => {
+  console.log(err.message, err.code);
+  // let errors;
+  let errors = { email: '', password: '' };
+
+  // incorrect email
+  if (err.message === 'incorrect email') {
+    errors.email = 'That email is not registered';
+  }
+
+  // incorrect password
+  if (err.message === 'incorrect password') {
+    errors.password = 'That password is incorrect';
+  }
+
+  // duplicate email error
+  if (err.code === 11000) {
+    errors.email = 'that email is already registered';
+    // errors = checkIfUserExists(username, email)
+    return errors;
+  }
+
+  // validation errors
+  if (err.message.includes('user validation failed')) {
+    // console.log(err);
+    Object.values(err.errors).forEach(({ properties }) => {
+      // console.log(val);
+      // console.log(properties);
+      errors[properties.path] = properties.message;
+    });
+  }
+
+  return errors;
+}
+
+//////////////////////
+
 
 const transfer = async (req,res) => {
   const { senderEmail, recepientEmail, amount } = req.body;
@@ -117,22 +171,23 @@ const deleteUser = async (req, res) => {
 
 
 const signup = async (req, res) => {
-  
-  // 1- create user
-  const user = await User.create(req.body);
-  
-  // 2- generate token
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
-  
+
   try{
+    // 1- create user
+     const user = await User.create(req.body);
+
+    // 2- generate token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
+
     res.status(201).json({ 
       data: user, token
      });
   }
   catch(e){
-    res.status(404).json({
+    const err = handleErrors(e, req.body.email, req.body.userName)
+    res.status(400).json({
       status: "failed",
-      message: e
+      message: err
     });
   }
 
@@ -140,16 +195,39 @@ const signup = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  // 1- check if email is exist
-  const user = await User.findOne({ email: req.body.email });
-  if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-    return Error("Envalid Email or Password");
+
+  // // 1- check if email is exist
+  // const user = await User.findOne({ email: req.body.email });
+  // if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+  //   return Error("invalid username or password")
+  // }
+  // // 2- generate token
+  // const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+  //   expiresIn: process.env.JWT_EXPIRE_TIME,
+  // });
+  // return res.json({ data: user, token });
+
+  const { email, password } = req.body;
+  
+  try{
+    // go to the static function in the user model to check if the user exists
+    const user = await User.login(email, password);
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+        expiresIn: process.env.JWT_EXPIRE_TIME,
+    });
+    res.status(200).json({ 
+      user: user._id, token ,
+      status: true
+    });
+
   }
-  // 2- generate token
-  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRE_TIME,
-  });
-  res.json({ data: user, token });
+  catch(e){
+    res.status(404).json({
+      message: "invalid username or password",
+      status: false
+    })
+  }
 };
 
 module.exports = {

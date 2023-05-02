@@ -80,12 +80,29 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// static method to login user
+userSchema.statics.login = async function(email, password) {
+  const user = await this.findOne({ email });
+  // console.log(user)
+  
+  if (user) {
+    const authorization = await bcrypt.compare(password, user.password);
+    console.log(authorization)
+    if (authorization) {
+      console.log(user)
+      return user;
+    }
+    throw Error('incorrect password');
+  }
+  throw Error('incorrect email');
+};
+
 userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
 
   this.cardNumber = generateCreditCardNumber();
-  console.log(JSON.stringify(this.cardNumber))
+  // console.log(JSON.stringify(this.cardNumber))
   next();
 });
 
