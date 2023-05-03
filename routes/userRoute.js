@@ -16,7 +16,7 @@ router.route("/").get(getUsers).post(createUser);
 router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
 router.post("/signup", signup);
 router.post("/login", login);
-router.post("/transfer", authenticateToken, transfer);
+router.post("/transfer", transfer);
 
 
 module.exports = router;

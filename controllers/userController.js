@@ -7,27 +7,6 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 // const secretKey = process.env.JWT_SECRET_KEY;
 
-//middleware function to ensure the authorization of users when transferring funds
-// const authenticateToken = async (req, res, next) => {
-//   const authHeader = req.headers['authorization'];
-//   console.log(authHeader)
-
-//   const token = authHeader && authHeader.split(' ')[1];
-//   console.log(token)
-
-//   if (token == null) {
-//     return res.sendStatus(401);
-//   }
-
-//   jwt.verify(token, secretKey, (err, user) => {
-//     if (err) {
-//       return res.sendStatus(403);
-//     }
-
-//     req.user = user;
-//     next();
-//   });
-// }
 
 const checkIfUserExists = async (username, email) => {
   const userByUsername = await User.findOne({ username: username });
@@ -88,10 +67,10 @@ const transfer = async (req,res) => {
 
   try {
     const sender = await User.findOne({userName: senderUsername});
-    console.log(sender)
+    // console.log(sender)
 
     const recipient = await User.findOne({userName: recipientUsername});
-    console.log(recipient)
+    // console.log(recipient)
 
     if (!sender || !recipient || sender.userName === recipient.userName) {
       // console.log(sender)
