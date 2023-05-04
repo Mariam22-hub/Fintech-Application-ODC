@@ -1,26 +1,20 @@
-const generateCreditCardNumber = () => {
-    // Generate 15 random digits
-    let digits = '';
-    for (let i = 0; i < 15; i++) {
-      digits += Math.floor(Math.random() * 10);
-    }
-  
-    // Calculate checksum using Luhn algorithm
-    let sum = 0;
-    for (let i = 0; i < 15; i++) {
-      let digit = parseInt(digits[i]);
-      if ((i + 1) % 2 === 0) {
-        digit *= 2;
-        if (digit > 9) {
-          digit -= 9;
-        }
-      }
-      sum += digit;
-    }
-    let checksum = (10 - (sum % 10)) % 10;
-  
-    // Return complete credit card number
-    return digits + checksum;
+const validator = require('validator');
+
+function validateEmailAndPasswordFormat(email, password) {
+  // Validate email format
+  if (!validator.isEmail(email)) {
+    return { isValid: false, message: 'Invalid email format' };
   }
 
-  module.exports  = {generateCreditCardNumber};
+  // Validate password format
+  if (!validator.isStrongPassword(password)) {
+    return { isValid: false, message: 'Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one symbol' };
+  }
+
+  // Return success message if both email and password formats are valid
+  return { isValid: true, message: 'Email and password formats are valid' };
+}
+
+module.exports = {
+  validateEmailAndPasswordFormat,
+}

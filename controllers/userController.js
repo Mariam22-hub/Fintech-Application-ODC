@@ -6,7 +6,18 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 // const secretKey = process.env.JWT_SECRET_KEY;
+const nodemailer = require("nodemailer")
+const {v4:uuidv4} = require("uuid");
 
+const creditCard = async (req,res) => {
+  // Find the user by ID
+  // const userId = 'USER_ID_GOES_HERE';
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+}
 
 const checkIfUserExists = async (username, email) => {
   const userByUsername = await User.findOne({ username: username });
@@ -178,18 +189,33 @@ const signup = async (req, res) => {
 
 };
 
-const login = async (req, res) => {
 
-  // // 1- check if email is exist
-  // const user = await User.findOne({ email: req.body.email });
-  // if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-  //   return Error("invalid username or password")
-  // }
-  // // 2- generate token
-  // const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-  //   expiresIn: process.env.JWT_EXPIRE_TIME,
-  // });
-  // return res.json({ data: user, token });
+const signup2 = async (req, res) => {
+
+  try{
+    // 1- create user
+     const user = await User.create(req.body);
+
+    // 2- generate token
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
+
+    res.status(201).json({ 
+      data: user._id, token,
+      status: true
+     });
+  }
+  catch(e){
+    const err = handleErrors(e, req.body.email, req.body.userName)
+    res.status(400).json({
+      status: false,
+      message: err
+    });
+  }
+
+
+};
+
+const login = async (req, res) => {
 
   const { email, password } = req.body;
   
@@ -214,6 +240,15 @@ const login = async (req, res) => {
   }
 };
 
+const forgetPassword = async(req, res)=>{
+  const {email, newPassword, confirmPassword} = req.body;
+  console.log("email");
+
+  const user = User.findOne({email: email});
+
+
+}
+
 module.exports = {
   getUsers,
   getUser,
@@ -223,5 +258,6 @@ module.exports = {
   signup,
   login,
   // authenticateToken,
-  transfer
+  transfer,
+  creditCard
 };

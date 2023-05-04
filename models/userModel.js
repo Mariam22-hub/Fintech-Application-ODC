@@ -31,6 +31,13 @@ function generateCreditCardNumber() {
   return (digits + checksum.toString());
 }
 
+function generateRandomNumbers() {
+  const randomNumbers = [];
+  for (let i = 0; i < 3; i++) {
+    randomNumbers.push(Math.floor(Math.random() * 100)); // generates a random number between 0 and 99
+  }
+  return randomNumbers;
+}
 
 const userSchema = new mongoose.Schema(
   {
@@ -55,6 +62,7 @@ const userSchema = new mongoose.Schema(
       required: [true,"please enter a password"],
       trim: true,
       minLength: 8,
+      maxLength: 15
     },
     email: {
       type: String,
@@ -70,6 +78,10 @@ const userSchema = new mongoose.Schema(
     balance: {
       type: Number,
       default: 0,
+    },
+    creditCard: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'smartCard'
     },
     cardNumber: {
       type: String,
@@ -101,7 +113,7 @@ userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
 
-  this.cardNumber = generateCreditCardNumber();
+  // this.cardNumber = generateCreditCardNumber();
   // console.log(JSON.stringify(this.cardNumber))
   next();
 });
