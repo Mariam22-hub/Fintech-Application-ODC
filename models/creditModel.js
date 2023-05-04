@@ -6,7 +6,7 @@ function generate3RandomNumbers() {
     for (let i = 0; i < 3; i++) {
       randomNumbers.push(Math.floor(Math.random() * 100)); // generates a random number between 0 and 99
     }
-    return randomNumbers;
+    return randomNumbers.join('');
 }
 
 function generateCreditCardNumber() {
@@ -22,6 +22,7 @@ const creditCardSchema = new mongoose.Schema({
     CVV: {
         type: String,
         maxlength: 3,
+        unique: true,
         minlength: 3,
         required: true,
     },
@@ -29,6 +30,7 @@ const creditCardSchema = new mongoose.Schema({
     creditNumber: {
         type: String,
         maxlength: 16,
+        unique: true,
         minlength: 16,
         required: true
     },
