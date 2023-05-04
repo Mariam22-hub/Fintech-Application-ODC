@@ -88,7 +88,7 @@ const transfer = async (req,res) => {
     await sender.save();
     await recipient.save();
 
-    res.send({ 
+    res.json({ 
       message: `Successfully transferred ${amount} from ${sender.userName} to ${recipient.userName}` ,
       SenderBalance: sender.balance,
       RecepientBalance: recipient.balance
