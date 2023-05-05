@@ -61,8 +61,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true,"please enter a password"],
       trim: true,
-      minLength: 8,
-      maxLength: 100
+      minLength: 8
     },
     email: {
       type: String,
@@ -79,10 +78,10 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    creditCard: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Card'
-    },
+    // creditCard: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'Card'
+    // },
     cardNumber: {
       type: String,
       // trim: true

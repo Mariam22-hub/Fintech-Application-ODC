@@ -39,18 +39,19 @@ const creditCardSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-    },
+    }
 
 })
 
 creditCardSchema.pre("save", async function (next) {
     const salt = await bcrypt.genSalt();
     this.CVV = generate3RandomNumbers();
+    console.log(this.CVV);
     this.CVV = await bcrypt.hash(this.CVV, salt);
 
-    this.creditCardNumber = generateCreditCardNumber();
-  
-    console.log(JSON.stringify(this.CVV));
+    this.creditNumber = generateCreditCardNumber();  
+    console.log(this.creditNumber);
+    
     next();
 });
   

@@ -33,28 +33,29 @@ const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
 
 
 const createCard = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id); // assuming authenticateToken middleware has been used to set req.user
+  // try {
+  //   const user = await User.findById(req.params.id); // assuming authenticateToken middleware has been used to set req.user
 
-    // const { cardNumber, expiryDate, cvv } = req.body;
+  //   // const { cardNumber, expiryDate, cvv } = req.body;
 
-    const newCard = new Card();
+  //   const newCard = new Card();
     
-    // save card id to user schema
-    user.creditCard = newCard._id;
-    newCard.user = user;
-    
-    await user.save();
-    await newCard.save();
+  //   // save card id to user schema
+  //   // user.creditCard._id = newCard._id;
+  //   // newCard.user._id = user._id;
+  //   // user.cardNumber = newCard.creditNumber;
 
-    res.status(201).json({ 
-      message: 'Card created successfully',
-      cardNumber: newCard.creditNumber 
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+  //   await user.save();
+  //   await newCard.save();
+
+  //   res.status(201).json({ 
+  //     message: 'Card created successfully',
+  //     cardNumber: newCard.creditNumber 
+  //   });
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).json({ message: 'Internal server error' });
+  // }
 };
 
 const checkIfUserExists = async (username, email) => {
@@ -221,6 +222,7 @@ const signup = async (req, res) => {
 
   const email = req.body.email;
   const username = req.body.userName;
+  consol.log(email)
 
   if (await User.findOne({email})){
        return res.status(400).json({msg: "User with this email already exists"});
@@ -233,6 +235,7 @@ const signup = async (req, res) => {
   try{
     // 1- create user
      const user = await User.create(req.body);
+     console.log(user);
 
     // 2- generate token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
@@ -299,7 +302,7 @@ const signup2 = async (req, res) => {
     
      // 2- generate token
     const token = jwt.sign({ userId: user._id , email: user.email},  process.env.JWT_SECRET_KEY, 
-      {expiresIn: "10h"});
+      {expiresIn: "24h"});
       
 
     const data = {
