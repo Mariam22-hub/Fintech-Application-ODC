@@ -15,7 +15,8 @@ const {
 } = require("../controllers/userController");
 
 router.route("/").get(getUsers).post(createUser).put(authenticateToken, activation);;
-router.route("/:id").get(getUser).put(updateUser).delete(deleteUser).post(createCard);
+router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
+router.post("/card", createCard);
 
 router.post("/signup", signup);
 

@@ -2,11 +2,9 @@
 //try to check if the password already exists part
 
 require("dotenv").config();
-// const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const Card = require("../models/creditModel");
-// const secretKey = process.env.JWT_SECRET_KEY;
 const nodemailer = require("nodemailer")
 const {v4:uuidv4} = require("uuid");
 
@@ -18,44 +16,30 @@ const { getMaxListeners } = require("../models/creditModel");
 const DOMAIN = 'sandbox708c1eda3a7245fc87a9fc5ea1db7fef.mailgun.org';
 const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
 
-// const transporter = nodemailer.createTransport({
-//   service: "gmail"
-// })
-
-// transporter.verify((error, sucess)=>{
-//   if (error){
-//     console.log(error)
-//   }else {
-//     console.log(sucess);
-//   }
-// })
-
-
 
 const createCard = async (req, res) => {
-  // try {
-  //   const user = await User.findById(req.params.id); // assuming authenticateToken middleware has been used to set req.user
+  try {
+    const user = await User.findById(req.body); // assuming authenticateToken middleware has been used to set req.user
 
-  //   // const { cardNumber, expiryDate, cvv } = req.body;
-
-  //   const newCard = new Card();
+    const newCard = new Card();
+    console.log(newCard)
     
-  //   // save card id to user schema
-  //   // user.creditCard._id = newCard._id;
-  //   // newCard.user._id = user._id;
-  //   // user.cardNumber = newCard.creditNumber;
+    // save card id to user schema
+    user.creditCard = newCard._id;
+    newCard.user = user._id;
+    user.cardNumber = newCard.creditNumber;
 
-  //   await user.save();
-  //   await newCard.save();
+    await user.save();
+    await newCard.save();
 
-  //   res.status(201).json({ 
-  //     message: 'Card created successfully',
-  //     cardNumber: newCard.creditNumber 
-  //   });
-  // } catch (error) {
-  //   console.error(error);
-  //   res.status(500).json({ message: 'Internal server error' });
-  // }
+    res.status(201).json({ 
+      message: 'Card created successfully',
+      cardNumber: newCard.creditNumber 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };
 
 const checkIfUserExists = async (username, email) => {
@@ -222,7 +206,7 @@ const signup = async (req, res) => {
 
   const email = req.body.email;
   const username = req.body.userName;
-  consol.log(email)
+  // consol.log(email)
 
   if (await User.findOne({email})){
        return res.status(400).json({msg: "User with this email already exists"});

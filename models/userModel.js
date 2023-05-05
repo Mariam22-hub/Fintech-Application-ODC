@@ -78,12 +78,13 @@ const userSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // creditCard: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'Card'
-    // },
+    creditCard: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Card'
+    },
     cardNumber: {
       type: String,
+      maxlength: 16
       // trim: true
     },
     verified: {
