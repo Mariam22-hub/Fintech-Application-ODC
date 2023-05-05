@@ -24,15 +24,13 @@ const creditCardSchema = new mongoose.Schema({
         maxlength: 3,
         unique: true,
         minlength: 3,
-        required: true,
     },
 
     creditNumber: {
         type: String,
         maxlength: 16,
         unique: true,
-        minlength: 16,
-        required: true
+        minlength: 16
     },
     expirationDate:{
         type: Date,
@@ -41,7 +39,6 @@ const creditCardSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
     },
 
 })
@@ -57,4 +54,4 @@ creditCardSchema.pre("save", async function (next) {
     next();
 });
   
-  module.exports = mongoose.model("smartCard", creditCardSchema);
+  module.exports = mongoose.model("Card", creditCardSchema);

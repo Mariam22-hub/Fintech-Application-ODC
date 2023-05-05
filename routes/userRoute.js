@@ -1,5 +1,5 @@
 const router = require("express").Router();
-// const {authenticateToken} = require("../middlewares/userMiddlewares");
+const {authenticateToken} = require("../middlewares/userMiddlewares");
 const {
   getUsers,
   getUser,
@@ -8,17 +8,27 @@ const {
   deleteUser,
   signup,
   login,
-  // authenticateToken,
   transfer,
-  creditCard,
+  createCard,
+  activation,
+  signup2,
 } = require("../controllers/userController");
 
-router.route("/").get(getUsers).post(createUser);
-router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
+router.route("/").get(getUsers).post(createUser).put(authenticateToken, activation);;
+router.route("/:id").get(getUser).put(updateUser).delete(deleteUser).post(createCard);
+
 router.post("/signup", signup);
+
+// route for website sign up
+router.post("/signupUser", signup2);
+
 router.post("/login", login);
 router.post("/transfer", transfer);
-router.post("/credit", creditCard);
+
+// route to transfer money on the website
+router.post("/transferMoney", authenticateToken, transfer);
+
+// router.post("/credit", createCard);
 
 
 module.exports = router;

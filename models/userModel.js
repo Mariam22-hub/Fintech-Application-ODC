@@ -3,41 +3,41 @@ const mongoose = require("mongoose");
 const { isEmail } = require("validator");
 // const {card} = require("../helperFunctions/helper");
 
-function generateCreditCardNumber() {
-  // Generate 15 random digits
-  let digits = '';
-  for (let i = 0; i < 15; i++) {
-    digits += Math.floor(Math.random() * 10);
-  }
+// function generateCreditCardNumber() {
+//   // Generate 15 random digits
+//   let digits = '';
+//   for (let i = 0; i < 15; i++) {
+//     digits += Math.floor(Math.random() * 10);
+//   }
 
-  // Calculate checksum using Luhn algorithm
-  let sum = 0;
-  for (let i = 0; i < 15; i++) {
-    let digit = parseInt(digits[i]);
-    if ((i + 1) % 2 === 0) {
-      digit *= 2;
-      if (digit > 9) {
-        digit -= 9;
-      }
-    }
-    sum += digit;
-  }
-  let checksum = (10 - (sum % 10)) % 10;
+//   // Calculate checksum using Luhn algorithm
+//   let sum = 0;
+//   for (let i = 0; i < 15; i++) {
+//     let digit = parseInt(digits[i]);
+//     if ((i + 1) % 2 === 0) {
+//       digit *= 2;
+//       if (digit > 9) {
+//         digit -= 9;
+//       }
+//     }
+//     sum += digit;
+//   }
+//   let checksum = (10 - (sum % 10)) % 10;
 
-  // Return complete credit card number
-  console.log(digits + checksum.toString());
-  // let num = digits + checksum;
+//   // Return complete credit card number
+//   console.log(digits + checksum.toString());
+//   // let num = digits + checksum;
 
-  return (digits + checksum.toString());
-}
+//   return (digits + checksum.toString());
+// }
 
-function generateRandomNumbers() {
-  const randomNumbers = [];
-  for (let i = 0; i < 3; i++) {
-    randomNumbers.push(Math.floor(Math.random() * 100)); // generates a random number between 0 and 99
-  }
-  return randomNumbers;
-}
+// function generateRandomNumbers() {
+//   const randomNumbers = [];
+//   for (let i = 0; i < 3; i++) {
+//     randomNumbers.push(Math.floor(Math.random() * 100)); // generates a random number between 0 and 99
+//   }
+//   return randomNumbers;
+// }
 
 const userSchema = new mongoose.Schema(
   {
@@ -62,7 +62,7 @@ const userSchema = new mongoose.Schema(
       required: [true,"please enter a password"],
       trim: true,
       minLength: 8,
-      maxLength: 15
+      maxLength: 100
     },
     email: {
       type: String,
@@ -81,11 +81,15 @@ const userSchema = new mongoose.Schema(
     },
     creditCard: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'smartCard'
+      ref: 'Card'
     },
     cardNumber: {
       type: String,
       // trim: true
+    },
+    verified: {
+      type: Boolean,
+      default: false
     },
     history: { type: Array, default: [] },
   },

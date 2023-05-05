@@ -2,22 +2,60 @@
 //try to check if the password already exists part
 
 require("dotenv").config();
-const bcrypt = require("bcrypt");
+// const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+const Card = require("../models/creditModel");
 // const secretKey = process.env.JWT_SECRET_KEY;
 const nodemailer = require("nodemailer")
 const {v4:uuidv4} = require("uuid");
 
-const creditCard = async (req,res) => {
-  // Find the user by ID
-  // const userId = 'USER_ID_GOES_HERE';
-  const user = await User.findById(userId);
 
-  if (!user) {
-    throw new Error('User not found');
+const formData = require('form-data');
+const mailgun = require('mailgun-js');
+const { getMaxListeners } = require("../models/creditModel");
+
+const DOMAIN = 'sandbox708c1eda3a7245fc87a9fc5ea1db7fef.mailgun.org';
+const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
+
+// const transporter = nodemailer.createTransport({
+//   service: "gmail"
+// })
+
+// transporter.verify((error, sucess)=>{
+//   if (error){
+//     console.log(error)
+//   }else {
+//     console.log(sucess);
+//   }
+// })
+
+
+
+const createCard = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id); // assuming authenticateToken middleware has been used to set req.user
+
+    // const { cardNumber, expiryDate, cvv } = req.body;
+
+    const newCard = new Card();
+    
+    // save card id to user schema
+    user.creditCard = newCard._id;
+    newCard.user = user._id;
+    
+    await user.save();
+    await newCard.save();
+
+    res.status(201).json({ 
+      message: 'Card created successfully',
+      cardNumber: newCard.creditNumber 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
 const checkIfUserExists = async (username, email) => {
   const userByUsername = await User.findOne({ username: username });
@@ -163,34 +201,34 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const sendVerification = ({_id, email}, res)=>{
+  const url = "http://localhost:3000/";
+  const uniqueString = uuidv4() + _id;
+
+  const mailing = {
+    from: "noreply@tabCash.com",
+    to: email,
+    subject: "Account Activation",
+    text: "Please verify your account",
+    html: `<h2>Please activate your account using the following link</h2>
+            <p> This link expires in 6 hours </p>
+            <p> Click <a href = ${url + "user/activation/" + _id + "/" + uniqueString}> here </a> to proceed</p>`
+  }
+}
+
 
 const signup = async (req, res) => {
 
-  try{
-    // 1- create user
-     const user = await User.create(req.body);
+  const email = req.body.email;
+  const username = req.body.userName;
 
-    // 2- generate token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
-
-    res.status(201).json({ 
-      data: user._id, token,
-      status: true
-     });
+  if (await User.findOne({email})){
+       return res.status(400).json({msg: "User with this email already exists"});
   }
-  catch(e){
-    const err = handleErrors(e, req.body.email, req.body.userName)
-    res.status(400).json({
-      status: false,
-      message: err
-    });
+  
+  if  (await User.findOne({username})){
+       return res.status(400).json({msg: "User with this username already exists"});
   }
-
-
-};
-
-
-const signup2 = async (req, res) => {
 
   try{
     // 1- create user
@@ -205,15 +243,16 @@ const signup2 = async (req, res) => {
      });
   }
   catch(e){
-    const err = handleErrors(e, req.body.email, req.body.userName)
+    // const err = handleErrors(e, req.body.email, req.body.userName)
     res.status(400).json({
       status: false,
-      message: err
+      message: e
     });
   }
 
 
 };
+
 
 const login = async (req, res) => {
 
@@ -240,14 +279,88 @@ const login = async (req, res) => {
   }
 };
 
-const forgetPassword = async(req, res)=>{
-  const {email, newPassword, confirmPassword} = req.body;
-  console.log("email");
 
-  const user = User.findOne({email: email});
+const signup2 = async (req, res) => {
+  const email = req.body.email;
+  const username = req.body.userName;
+
+  if (await User.findOne({email})){
+       return res.status(400).json({msg: "User with this email already exists"});
+  }
+  else if  (await User.findOne({username})){
+       return res.status(400).json({msg: "User with this username already exists"});
+  }
+
+
+  try{
+
+    // 1- create user
+     const user = await User.create(req.body);
+    
+     // 2- generate token
+    const token = jwt.sign({ userId: user._id , email: user.email},  process.env.JWT_SECRET_KEY, 
+      {expiresIn: "10h"});
+      
+
+    const data = {
+      from: "noreply@tabCash.com",
+      to: user.email,
+      subject: "Account Activation",
+      text: "Please verify your account",
+      html: `<h2>Please activate your account using the following link</h2>
+              <p> ${process.env.CLIENT_URL}/activate/${token}</p>`
+      
+    };
+
+    mg.messages().send(data, function(error, body){
+      console.log(body);
+      
+      if (error){
+        res.status(400).json({
+          status: false,
+          msg: error
+        });
+      }
+    })
+
+    res.status(201).json({ 
+      data: user._id, token,
+      status: true,
+      msg: "An activation link has been sent to your email, kindly activate your account"
+     });
+  }
+  catch(e){
+    // const err = handleErrors(e, req.body.email, req.body.userName)
+    res.status(400).json({
+      status: false,
+      error: e
+    });
+  }
+
+};
+
+//email activation function
+const activation = async (req,res)=>{
+  console.log(req.user.userId);
+  
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.verified = true;
+    await user.save();
+
+    return res.status(200).json({ message: 'User activated successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 
 
 }
+
 
 module.exports = {
   getUsers,
@@ -257,7 +370,8 @@ module.exports = {
   deleteUser,
   signup,
   login,
-  // authenticateToken,
   transfer,
-  creditCard
+  createCard,
+  activation,
+  signup2
 };
