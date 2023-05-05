@@ -209,11 +209,11 @@ const signup = async (req, res) => {
   // consol.log(email)
 
   if (await User.findOne({email})){
-       return res.status(400).json({msg: "User with this email already exists"});
+       return res.status(400).json({msg: "User with this email already exists",  status: false});
   }
   
   if  (await User.findOne({username})){
-       return res.status(400).json({msg: "User with this username already exists"});
+       return res.status(400).json({msg: "User with this username already exists" , status: false});
   }
 
   try{
