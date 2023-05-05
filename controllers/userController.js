@@ -42,7 +42,7 @@ const createCard = async (req, res) => {
     
     // save card id to user schema
     user.creditCard = newCard._id;
-    newCard.user = user._id;
+    newCard.user = user;
     
     await user.save();
     await newCard.save();
