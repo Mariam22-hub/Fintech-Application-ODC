@@ -7,6 +7,7 @@ const User = require("../models/userModel");
 const Card = require("../models/creditModel");
 const nodemailer = require("nodemailer")
 const {v4:uuidv4} = require("uuid");
+const bcrypt = require("bcrypt");
 
 
 const formData = require('form-data');
@@ -248,10 +249,12 @@ const login = async (req, res) => {
   try{
     // go to the static function in the user model to check if the user exists
     const user = await User.login(email, password);
-
+    console.log(user)
+    
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
         expiresIn: process.env.JWT_EXPIRE_TIME,
     });
+    console.log(token);
     res.status(200).json({ 
       user: user._id, token ,
       status: true
@@ -265,6 +268,24 @@ const login = async (req, res) => {
     })
   }
 };
+
+// const login = async (req, res) => {
+//   const user = await User.findOne({ email: req.body.email });
+//   console.log(user);
+  
+//   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+//     console.log(req.body.password)
+//     console.log(user.password)
+//     res.status(404).json({ message: "Invalid Email or Password" });
+//   } 
+//   else {
+//     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+//       expiresIn: process.env.JWT_EXPIRE_TIME,
+//     });
+    
+//     res.status(200).json({ data: user, token });
+//   }
+// };
 
 
 const signup2 = async (req, res) => {

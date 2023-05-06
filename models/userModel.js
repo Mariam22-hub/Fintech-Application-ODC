@@ -99,7 +99,7 @@ const userSchema = new mongoose.Schema(
 // static method to login user
 userSchema.statics.login = async function(email, password) {
   const user = await this.findOne({ email });
-  // console.log(user)
+  console.log(user)
   
   if (user) {
     const authorization = await bcrypt.compare(password, user.password);
