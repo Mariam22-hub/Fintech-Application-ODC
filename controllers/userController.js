@@ -169,7 +169,7 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    await User.updateOne({ _id: req.params.id }, { $set: { balance: req.body.propertyValue }});
+    await User.updateOne({ _id: req.params.id }, { $set: { balance: req.body.balance }});
     
     res.status(200).json({ message: 'User updated successfully', status: true });
   } catch (error) {
