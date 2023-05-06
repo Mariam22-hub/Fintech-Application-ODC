@@ -166,15 +166,26 @@ const createUser = async (req, res) => {
   }
 };
 
+// const updateUser = async (req, res) => {
+//   try {
+//     const UpdatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//     });
+
+//     res.json(UpdatedUser);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
 const updateUser = async (req, res) => {
   try {
-    const UpdatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-
-    res.json(UpdatedUser);
+    await User.updateOne({ _id: req.params.id }, { $set: { balance: req.body.propertyValue }});
+    
+    res.status(200).json({ message: 'User updated successfully', status: true });
   } catch (error) {
     console.log(error);
+    res.status(200).json({status: false});
   }
 };
 
