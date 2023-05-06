@@ -34,11 +34,15 @@ const creditCardSchema = new mongoose.Schema({
     },
     expirationDate:{
         type: Date,
-        default: () => Date.now() + 7*24*60*60*1000
+        default: () => Date.now() + 1*24*60*60*1000
     },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
+    },
+    balance: {
+        type: Number,
+        required: [true,"A balance is required for the smart card"]
     }
 
 })

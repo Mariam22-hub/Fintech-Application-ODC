@@ -12,6 +12,8 @@ const {
   createCard,
   activation,
   signup2,
+  forgotPassword,
+  resetPassword,
 } = require("../controllers/userController");
 
 router.route("/").get(getUsers).post(createUser).put(authenticateToken, activation);;
@@ -30,6 +32,9 @@ router.post("/transfer", transfer);
 router.post("/transferMoney", authenticateToken, transfer);
 
 // router.post("/credit", createCard);
+
+router.post("/forgotPassword", forgotPassword);
+router.patch("/resetPassword/:token", resetPassword);
 
 
 module.exports = router;

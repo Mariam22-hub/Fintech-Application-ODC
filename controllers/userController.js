@@ -8,7 +8,7 @@ const Card = require("../models/creditModel");
 const nodemailer = require("nodemailer")
 const {v4:uuidv4} = require("uuid");
 const bcrypt = require("bcrypt");
-
+const sendEmail = require("../utils/sendEmail");
 
 const formData = require('form-data');
 const mailgun = require('mailgun-js');
@@ -30,8 +30,14 @@ const createCard = async (req, res) => {
     newCard.user = user._id;
     user.cardNumber = newCard.creditNumber;
 
-    await user.save();
-    await newCard.save();
+    user.balance -= amount;
+    const newBalance = user.balance;
+
+    await User.updateOne({_id: req.body._id }, { $set: { balance: newBalance }});
+    await User.updateOne({_id: req.body._id }, { $set: { cardNumber: newCard.creditNumber }});
+
+    // await user.save();
+    // await newCard.save();
 
     res.status(201).json({ 
       message: 'Card created successfully',
@@ -42,6 +48,55 @@ const createCard = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+const transfer = async (req,res) => {
+  const { senderUsername, recipientUsername, amount } = req.body;
+  console.log(senderUsername)
+  console.log(recipientUsername)
+  console.log(amount)
+
+  try {
+    const sender = await User.findOne({userName: senderUsername});
+    // console.log(sender)
+
+    const recipient = await User.findOne({userName: recipientUsername});
+    // console.log(recipient)
+
+    if (!sender || !recipient || sender.userName === recipient.userName) {
+      // console.log(sender)
+      // console.log(recipient)
+      return res.status(400).send({ error: 'Invalid sender or recipient' });
+    }
+
+    if (sender.balance < amount ) {
+      return res.status(400).send({ error: 'Insufficient funds' });
+    }
+
+    
+    sender.balance -= amount;
+    const newSenderAmount = sender.balance;
+
+    recipient.balance += amount;
+    const newrecipientAmount = recipient.balance;
+
+    await User.updateOne({userName: recipientUsername }, { $set: { balance: newrecipientAmount }});
+    await User.updateOne({userName: senderUsername }, { $set: { balance: newSenderAmount }});
+
+    // await sender.save();
+    // await recipient.save();
+
+    res.send({ 
+      message: `Successfully transferred ${amount} from ${sender.userName} to ${recipient.userName}` ,
+      SenderBalance: sender.balance,
+      RecepientBalance: recipient.balance
+    });
+  } 
+  catch (err) {
+    console.error(err.message);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+
+}
 
 const checkIfUserExists = async (username, email) => {
   const userByUsername = await User.findOne({ username: username });
@@ -93,55 +148,6 @@ const handleErrors = (err, username) => {
 
 //////////////////////
 
-
-const transfer = async (req,res) => {
-  const { senderUsername, recipientUsername, amount } = req.body;
-  console.log(senderUsername)
-  console.log(recipientUsername)
-  console.log(amount)
-
-  try {
-    const sender = await User.findOne({userName: senderUsername});
-    // console.log(sender)
-
-    const recipient = await User.findOne({userName: recipientUsername});
-    // console.log(recipient)
-
-    if (!sender || !recipient || sender.userName === recipient.userName) {
-      // console.log(sender)
-      // console.log(recipient)
-      return res.status(400).send({ error: 'Invalid sender or recipient' });
-    }
-
-    if (sender.balance < amount ) {
-      return res.status(400).send({ error: 'Insufficient funds' });
-    }
-
-    
-    sender.balance -= amount;
-    const newSenderAmount = sender.balance;
-
-    recipient.balance += amount;
-    const newrecipientAmount = recipient.balance;
-
-    await User.updateOne({userName: recipientUsername }, { $set: { balance: newrecipientAmount }});
-    await User.updateOne({userName: senderUsername }, { $set: { balance: newSenderAmount }});
-
-    // await sender.save();
-    // await recipient.save();
-
-    res.send({ 
-      message: `Successfully transferred ${amount} from ${sender.userName} to ${recipient.userName}` ,
-      SenderBalance: sender.balance,
-      RecepientBalance: recipient.balance
-    });
-  } 
-  catch (err) {
-    console.error(err.message);
-    res.status(500).send({ error: 'Internal Server Error' });
-  }
-
-}
 
 /////////////////////////////
 
@@ -276,24 +282,6 @@ const login = async (req, res) => {
   }
 };
 
-// const login = async (req, res) => {
-//   const user = await User.findOne({ email: req.body.email });
-//   console.log(user);
-  
-//   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-//     console.log(req.body.password)
-//     console.log(user.password)
-//     res.status(404).json({ message: "Invalid Email or Password" });
-//   } 
-//   else {
-//     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-//       expiresIn: process.env.JWT_EXPIRE_TIME,
-//     });
-    
-//     res.status(200).json({ data: user, token });
-//   }
-// };
-
 
 const signup2 = async (req, res) => {
   const email = req.body.email;
@@ -308,7 +296,6 @@ const signup2 = async (req, res) => {
 
 
   try{
-
     // 1- create user
      const user = await User.create(req.body);
     
@@ -377,6 +364,63 @@ const activation = async (req,res)=>{
 }
 
 
+const forgotPassword = async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) {
+    return res.status(404).json({ message: "This email is not found" });
+  }
+  const resetToken = user.createPasswordResetTokent();
+  await user.save({ validateBeforeSave: false });
+
+  const resetURL = `${req.protocol}://${req.get(
+    "host"
+  )}/api/users/resetPassword/${resetToken}`;
+  const message = `forgot your password? submit a PATCH request with your new password to: ${resetURL}. 
+  \nif you didn't forgot your password, please ignore this email!`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "Your password reset token (valid for 10 min)",
+      message,
+    });
+    res.status(200).json({
+      message: "token sent to email",
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    return res.status(500).json(err);
+  }
+};
+
+const resetPassword = async (req, res) => {
+  // get user based on token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  // if token has not expired, and there is user, set new password
+  if (!user) {
+    return res.status(400).json({ message: "token is invalid or has expired" });
+  }
+  user.password = req.body.password;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  // log the user in
+  const token = jwt.sign(user._id);
+  res.status(200).json(token);
+};
+
+
 module.exports = {
   getUsers,
   getUser,
@@ -388,5 +432,7 @@ module.exports = {
   transfer,
   createCard,
   activation,
-  signup2
+  signup2,
+  forgotPassword,
+  resetPassword,
 };
