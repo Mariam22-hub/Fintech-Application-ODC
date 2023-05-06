@@ -166,17 +166,6 @@ const createUser = async (req, res) => {
   }
 };
 
-// const updateUser = async (req, res) => {
-//   try {
-//     const UpdatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
-//       new: true,
-//     });
-
-//     res.json(UpdatedUser);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
 
 const updateUser = async (req, res) => {
   try {
