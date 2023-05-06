@@ -117,11 +117,18 @@ const transfer = async (req,res) => {
       return res.status(400).send({ error: 'Insufficient funds' });
     }
 
+    
     sender.balance -= amount;
-    recipient.balance += amount;
+    const newSenderAmount = sender.balance;
 
-    await sender.save();
-    await recipient.save();
+    recipient.balance += amount;
+    const newrecipientAmount = recipient.balance;
+
+    await User.updateOne({userName: recipientUsername }, { $set: { balance: newrecipientAmount }});
+    await User.updateOne({userName: senderUsername }, { $set: { balance: newSenderAmount }});
+
+    // await sender.save();
+    // await recipient.save();
 
     res.send({ 
       message: `Successfully transferred ${amount} from ${sender.userName} to ${recipient.userName}` ,
