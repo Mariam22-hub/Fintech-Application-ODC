@@ -27,27 +27,24 @@ const createOperation = async (req, res) => {
   
   try {
 
-    const user = await User.findOne({userName: username});
+    const user = await User.findOne({userName: username}).populate("creditCard");
     const operation = await Operation.create(req.body);
 
-    console.log(user);
-    console.log(operation);
-    
     operation.userId = user;
-    console.log(operation.userId);
 
     const paymentOption = operation.paymentType;
     console.log(paymentOption);
 
-    if (paymentOption == "wallet"){
+    if (paymentOption === "wallet"){
       user.balance -= amount;
-      console.log(user.balance);
+      // console.log(user.balance);
       await User.updateOne({userName: username }, { $set: { balance: user.balance }}); 
     }
-    else if (paymentOption == "credit"){
+    else if (paymentOption === "credit"){
 
       try{
         user.creditCard.balance -= amount;
+
         await Card.updateOne({_id : user.creditCard._id }, { $set: { balance: user.creditCard.balance }}); 
 
       }
