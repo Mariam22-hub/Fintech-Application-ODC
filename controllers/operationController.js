@@ -5,10 +5,10 @@ const Card = require("../models/creditModel");
 const getOperations = async (req, res) => {
   try {
     const {transactionName, username} = req.body;
-    const operations = await Operation.find(req.body);
+    const operations = await Operation.find({transactionName: transactionName, username: username});
     res.status(200).json(operations);
   } catch (error) {
-    res.status(400).json({ message: error });
+    res.status(400).json({ message: "User doesn't have any activity yet", status: false });
   }
 };
 
