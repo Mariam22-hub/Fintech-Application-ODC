@@ -92,6 +92,21 @@ const userSchema = new mongoose.Schema(
       default: false
     },
     history: { type: Array, default: [] },
+
+    operations: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Operation",
+      },
+    ],
+    childs: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Child",
+      },
+    ],
+    passwordResetToken: String,
+    passwordResetExpires: Date,
   },
   { timestamps: true }
 );

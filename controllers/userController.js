@@ -7,7 +7,6 @@ const User = require("../models/userModel");
 const Card = require("../models/creditModel");
 const nodemailer = require("nodemailer")
 const {v4:uuidv4} = require("uuid");
-const bcrypt = require("bcrypt");
 const sendEmail = require("../utils/sendEmail");
 
 const formData = require('form-data');
@@ -146,10 +145,6 @@ const handleErrors = (err, username) => {
   return errors;
 }
 
-//////////////////////
-
-
-/////////////////////////////
 
 const getUsers = async (req, res) => {
   try {
@@ -218,17 +213,6 @@ const sendVerification = ({_id, email}, res)=>{
 
 const signup = async (req, res) => {
 
-  const email = req.body.email;
-  const username = req.body.userName;
-  // consol.log(email)
-
-  // if (await User.findOne({email})){
-  //      return res.status(400).json({msg: "User with this email already exists",  status: false});
-  // }
-  
-  // if  (await User.findOne({username})){
-  //      return res.status(400).json({msg: "User with this username already exists" , status: false});
-  // }
 
   try{
     // 1- create user
@@ -352,7 +336,8 @@ const activation = async (req,res)=>{
     }
 
     user.verified = true;
-    await user.save();
+    await User.updateOne({_id: req.user.userId }, { $set: { verified: true }});
+    // await user.save();
 
     return res.status(200).json({ message: 'User activated successfully' });
   } catch (error) {
@@ -430,7 +415,7 @@ module.exports = {
   signup,
   login,
   transfer,
-  createCard,
+  // createCard,
   activation,
   signup2,
   forgotPassword,

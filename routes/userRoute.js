@@ -9,7 +9,7 @@ const {
   signup,
   login,
   transfer,
-  createCard,
+  // createCard,
   activation,
   signup2,
   forgotPassword,
@@ -18,7 +18,7 @@ const {
 
 router.route("/").get(getUsers).post(createUser).put(authenticateToken, activation);;
 router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
-router.post("/card", createCard);
+// router.post("/card", createCard);
 
 router.post("/signup", signup);
 

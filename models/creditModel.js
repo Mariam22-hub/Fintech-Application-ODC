@@ -50,11 +50,11 @@ const creditCardSchema = new mongoose.Schema({
 creditCardSchema.pre("save", async function (next) {
     const salt = await bcrypt.genSalt();
     this.CVV = generate3RandomNumbers();
-    // console.log(this.CVV);
+    console.log(this.CVV);
     this.CVV = await bcrypt.hash(this.CVV, salt);
 
     this.creditNumber = generateCreditCardNumber(); 
-    // console.log(this.creditNumber);
+    console.log(this.creditNumber);
     
     next();
 });
