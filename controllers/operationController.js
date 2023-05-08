@@ -4,7 +4,8 @@ const Card = require("../models/creditModel");
 
 const getOperations = async (req, res) => {
   try {
-    const operations = await Operation.find();
+    const {transactionName, username} = req.body;
+    const operations = await Operation.find(req.body);
     res.status(200).json(operations);
   } catch (error) {
     res.status(400).json({ message: error });
@@ -13,7 +14,7 @@ const getOperations = async (req, res) => {
 
 const getOperation = async (req, res) => {
   try {
-    const operation = await Operation.findById(req.params.id);
+    const operation = await Operation.findOne(req.body);
     res.status(200).json(operation);
   } catch {
     res.status(404).json({ message: "Operation not found" });
@@ -23,7 +24,7 @@ const getOperation = async (req, res) => {
 
 const createOperation = async (req, res) => {
   const {username, amount} = req.body;
-  console.log(username, amount);
+  // console.log(username, amount);
   
   try {
 
@@ -31,9 +32,9 @@ const createOperation = async (req, res) => {
     const operation = await Operation.create(req.body);
 
     operation.userId = user;
-
+    
     const paymentOption = operation.paymentType;
-    console.log(paymentOption);
+    // console.log(paymentOption);
 
     if (paymentOption === "wallet"){
       user.balance -= amount;
