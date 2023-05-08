@@ -9,7 +9,6 @@ const nodemailer = require("nodemailer")
 const {v4:uuidv4} = require("uuid");
 const sendEmail = require("../utils/sendEmail");
 
-const formData = require('form-data');
 const mailgun = require('mailgun-js');
 const { getMaxListeners } = require("../models/creditModel");
 
@@ -245,7 +244,7 @@ const signup2 = async (req, res) => {
 
 //email activation function
 const activation = async (req,res)=>{
-  console.log(req.user.userId);
+  // console.log(req.user.userId);
   
   try {
     const user = await User.findById(req.user.userId);
@@ -333,7 +332,6 @@ module.exports = {
   signup,
   login,
   transfer,
-  // createCard,
   activation,
   signup2,
   forgotPassword,

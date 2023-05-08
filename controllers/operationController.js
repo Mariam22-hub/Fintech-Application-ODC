@@ -25,17 +25,18 @@ const getActivity = async (req, res) => {
 const pay = async(req,res)=>{
   
   const user = await User.findById(req.params.id).populate("creditCard");
-  console.log(user);
+  // console.log(user);
 
-  const {paymentOption, amount} = req.body;
+  const {paymentType, balance} = req.body;
   console.log(paymentOption);
+  console.log(balance);
 
-  if (paymentOption === "wallet"){
-      user.balance -= amount;
+  if (paymentType === "wallet"){
+      user.balance -= balance;
       console.log(user.balance);
-      await User.updateOne({userName: username }, { $set: { balance: user.balance }}); 
+      await User.updateOne({_id: user._id }, { $set: { balance: user.balance }}); 
   }
-  else if (paymentOption === "credit"){
+  else if (paymentType === "credit"){
       
     try{
         user.creditCard.balance -= amount;
