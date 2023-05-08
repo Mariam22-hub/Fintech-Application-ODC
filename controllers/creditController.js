@@ -28,7 +28,10 @@ const createCard = async (req, res) => {
       }
       
       const { balance } = req.body; 
-      console.log(balance);
+      // console.log(balance);
+      if (user.balance < balance ) {
+        return res.status(400).send({ error: 'Insufficient funds in your wallet' });
+      }
       
       const newCard = new Card(req.body);
       newCard.user = user._id;
@@ -44,7 +47,7 @@ const createCard = async (req, res) => {
         }
       });
 
-      
+
       res.status(201).json({ 
         message: 'Card created successfully',
         cardNumber: newCard.creditNumber 
