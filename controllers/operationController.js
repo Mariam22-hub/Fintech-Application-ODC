@@ -2,7 +2,7 @@ const Operation = require("../models/operationModel");
 const User = require("../models/userModel");
 const Card = require("../models/creditModel");
 
-const getOperations = async (req, res) => {
+const getActivities = async (req, res) => {
   try {
     const {transactionName, username} = req.body;
     const operations = await Operation.find({transactionName: transactionName, username: username});
@@ -12,7 +12,7 @@ const getOperations = async (req, res) => {
   }
 };
 
-const getOperation = async (req, res) => {
+const getActivity = async (req, res) => {
   try {
     const operation = await Operation.findOne(req.body);
     res.status(200).json(operation);
@@ -22,32 +22,24 @@ const getOperation = async (req, res) => {
 };
 
 
-const createOperation = async (req, res) => {
-  const {username, amount} = req.body;
-  // console.log(username, amount);
+const pay = async(req,res)=>{
   
-  try {
+  const user = await User.findById(req.params.id).populate("creditCard");
+  console.log(user);
 
-    const user = await User.findOne({userName: username}).populate("creditCard");
-    const operation = await Operation.create(req.body);
+  const {paymentOption, amount} = req.body;
+  console.log(paymentOption);
 
-    operation.userId = user;
-    
-    const paymentOption = operation.paymentType;
-    // console.log(paymentOption);
-
-    if (paymentOption === "wallet"){
+  if (paymentOption === "wallet"){
       user.balance -= amount;
-      // console.log(user.balance);
+      console.log(user.balance);
       await User.updateOne({userName: username }, { $set: { balance: user.balance }}); 
-    }
-    else if (paymentOption === "credit"){
-
-      try{
+  }
+  else if (paymentOption === "credit"){
+      
+    try{
         user.creditCard.balance -= amount;
-
         await Card.updateOne({_id : user.creditCard._id }, { $set: { balance: user.creditCard.balance }}); 
-
       }
       catch(e){
         res.status(403).json({ 
@@ -57,6 +49,37 @@ const createOperation = async (req, res) => {
       }
       
     }
+    
+    try {
+      const operationData = {
+        username: user.userName,
+        paymentOption: paymentOption,
+        amount: amount,
+        transactionName: "Service/Product Purchase",
+        Details: "User made a payment"
+      };
+      await createActivityRecord({ body: operationData }, res);
+    } catch (err) {
+      res.status(403).json({ message: err, status: false });
+    }
+}
+
+const createActivityRecord = async (req, res) => {
+  const {username} = req.body;
+  
+  try {
+    // const user = await User.findOne({userName: username}).populate("creditCard");
+    const user = await User.findOne({userName: username});
+    
+    if (!user){
+      return res.status(404).json({message: "User doesn't exist", status: false});
+    }
+    
+    const operation = new Operation(req.body);
+
+    operation.userId = user;
+
+    operation.save();
 
     res.status(200).json({operation: operation, status: true});
   } catch (err) {
@@ -64,28 +87,29 @@ const createOperation = async (req, res) => {
   }
 };
 
-const updateOperation = async (req, res) => {
+const updateActivity = async (req, res) => {
   try {
     await Operation.findByIdAndUpdate(req.params.id, req.body);
-    res.status(200).json({ message: "Operation updated successfully" });
+    res.status(200).json({ message: "Activity updated successfully" });
   } catch (error) {
     res.status(400).json({ message: error });
   }
 };
 
-const deleteOperation = async (req, res) => {
+const deleteActivity = async (req, res) => {
   try {
     await Operation.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Operation is deleted" });
+    res.status(200).json({ message: "Activity is deleted" });
   } catch (error) {
     res.status(400).json({ message: error });
   }
 };
 
 module.exports = {
-  getOperations,
-  getOperation,
-  createOperation,
-  updateOperation,
-  deleteOperation,
+  getActivities,
+  getActivity,
+  createActivityRecord,
+  updateActivity,
+  deleteActivity,
+  pay,
 };

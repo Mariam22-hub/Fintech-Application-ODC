@@ -1,14 +1,15 @@
 const router = require("express").Router();
 
 const {
-  getOperations,
-  getOperation,
-  createOperation,
-  updateOperation,
-  deleteOperation,
+  getActivities,
+  getActivity,
+  createActivityRecord,
+  updateActivity,
+  deleteActivity,
+  pay,
 } = require("../controllers/operationController");
 
-router.route("/").get(getOperations).post(createOperation);
-router.route("/:id").get(getOperation).put(updateOperation).delete(deleteOperation);
+router.route("/").get(getActivities).post(createActivityRecord);
+router.route("/:id").get(getActivity).put(updateActivity).delete(deleteActivity).post(pay);
 
 module.exports = router;
