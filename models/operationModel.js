@@ -10,19 +10,12 @@ const operationSchema = new mongoose.Schema(
       type: String,
     },
     
-    // transactionDetails: {
-    //   type: String,
-    //   default: function() {
-    //     return `You transferred ${this.amount} to ${this.userId.userName}.`;
-    //   },
-    // },
-
+    Details: {
+      type: String
+      },
+    
     amount:{
       type: Number
-    },
-    
-    purchaseDetails: {
-      type: String,
     },
     
     paymentType: {

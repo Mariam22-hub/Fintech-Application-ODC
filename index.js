@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const UserRoute = require("./routes/userRoute");
 const cardRoute = require("./routes/cardRoute");
+const operationRoute = require("./routes/operationRoute");
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Routes
 app.use("/api/user", UserRoute);
 app.use("/api/credit", cardRoute);
+app.use("/api/operations", operationRoute);
 
 app.get("/", (req, res)=>{
   res.send("hello to our fintech website");

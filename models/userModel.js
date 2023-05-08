@@ -2,42 +2,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { isEmail } = require("validator");
 // const {card} = require("../helperFunctions/helper");
-
-// function generateCreditCardNumber() {
-//   // Generate 15 random digits
-//   let digits = '';
-//   for (let i = 0; i < 15; i++) {
-//     digits += Math.floor(Math.random() * 10);
-//   }
-
-//   // Calculate checksum using Luhn algorithm
-//   let sum = 0;
-//   for (let i = 0; i < 15; i++) {
-//     let digit = parseInt(digits[i]);
-//     if ((i + 1) % 2 === 0) {
-//       digit *= 2;
-//       if (digit > 9) {
-//         digit -= 9;
-//       }
-//     }
-//     sum += digit;
-//   }
-//   let checksum = (10 - (sum % 10)) % 10;
-
-//   // Return complete credit card number
-//   console.log(digits + checksum.toString());
-//   // let num = digits + checksum;
-
-//   return (digits + checksum.toString());
-// }
-
-// function generateRandomNumbers() {
-//   const randomNumbers = [];
-//   for (let i = 0; i < 3; i++) {
-//     randomNumbers.push(Math.floor(Math.random() * 100)); // generates a random number between 0 and 99
-//   }
-//   return randomNumbers;
-// }
+const Operation = require("../models/operationModel");
 
 const userSchema = new mongoose.Schema(
   {
@@ -93,12 +58,11 @@ const userSchema = new mongoose.Schema(
     },
     history: { type: Array, default: [] },
 
-    operations: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Operation",
-      },
-    ],
+    operations: {
+      type: [mongoose.Schema.Types.ObjectId],
+      default: [],
+      ref: "Operation"
+    },
     childs: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -132,8 +96,6 @@ userSchema.pre("save", async function (next) {
   const salt = await bcrypt.genSalt();
   this.password = await bcrypt.hash(this.password, salt);
 
-  // this.cardNumber = generateCreditCardNumber();
-  // console.log(JSON.stringify(this.cardNumber))
   next();
 });
 

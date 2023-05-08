@@ -1,4 +1,6 @@
 const Operation = require("../models/operationModel");
+const User = require("../models/userModel");
+const Card = require("../models/creditModel");
 
 const getOperations = async (req, res) => {
   try {
@@ -18,12 +20,49 @@ const getOperation = async (req, res) => {
   }
 };
 
+
 const createOperation = async (req, res) => {
+  const {username, amount} = req.body.username;
+  console.log(username, amount);
+  
   try {
+
+    const user = await User.findById(username);
     const operation = await Operation.create(req.body);
-    res.status(200).json(operation);
+
+    console.log(user);
+    console.log(operation);
+    
+    operation.userId = user;
+    console.log(operation.userId);
+
+    const paymentOption = operation.paymentType;
+    console.log(paymentOption);
+
+    if (paymentOption == "wallet"){
+      user.balance -= amount;
+      console.log(user.balance);
+      await User.updateOne({userName: username }, { $set: { balance: user.balance }}); 
+    }
+    else{
+
+      try{
+        user.creditCard.balance -= amount;
+        await Card.updateOne({_id : user.creditCard._id }, { $set: { balance: user.creditCard.balance }}); 
+
+      }
+      catch(e){
+        res.status(403).json({ 
+            message: "User doesn't have a registered electronic credit card", 
+            status: false 
+          });
+      }
+      
+    }
+
+    res.status(200).json(operation, {status: true});
   } catch (err) {
-    res.status(403).json({ message: err });
+    res.status(403).json({ message: err, status: false });
   }
 };
 

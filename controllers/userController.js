@@ -17,42 +17,8 @@ const DOMAIN = 'sandbox708c1eda3a7245fc87a9fc5ea1db7fef.mailgun.org';
 const mg = mailgun({ apiKey: process.env.MAILGUN_API_KEY, domain: DOMAIN });
 
 
-const createCard = async (req, res) => {
-  try {
-    const user = await User.findById(req.body); // assuming authenticateToken middleware has been used to set req.user
-
-    const newCard = new Card();
-    console.log(newCard)
-    
-    // save card id to user schema
-    user.creditCard = newCard._id;
-    newCard.user = user._id;
-    user.cardNumber = newCard.creditNumber;
-
-    user.balance -= amount;
-    const newBalance = user.balance;
-
-    await User.updateOne({_id: req.body._id }, { $set: { balance: newBalance }});
-    await User.updateOne({_id: req.body._id }, { $set: { cardNumber: newCard.creditNumber }});
-
-    // await user.save();
-    // await newCard.save();
-
-    res.status(201).json({ 
-      message: 'Card created successfully',
-      cardNumber: newCard.creditNumber 
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
 const transfer = async (req,res) => {
   const { senderUsername, recipientUsername, amount } = req.body;
-  console.log(senderUsername)
-  console.log(recipientUsername)
-  console.log(amount)
 
   try {
     const sender = await User.findOne({userName: senderUsername});
@@ -95,54 +61,6 @@ const transfer = async (req,res) => {
     res.status(500).send({ error: 'Internal Server Error' });
   }
 
-}
-
-const checkIfUserExists = async (username, email) => {
-  const userByUsername = await User.findOne({ username: username });
-  if (userByUsername) {
-    return "username already exists"; // username already exists
-  }
-  const userByemail = await User.findOne({ email: email });
-  
-  if (userByemail) {
-    return "email already exists"; // username already exists
-  }
-
-};
-
-const handleErrors = (err, username) => {
-  console.log(err.message, err.code);
-  // let errors;
-  let errors = { email: '', password: '' };
-
-  // incorrect email
-  if (err.message === 'incorrect email') {
-    errors.email = 'That email is not registered';
-  }
-
-  // incorrect password
-  if (err.message === 'incorrect password') {
-    errors.password = 'That password is incorrect';
-  }
-
-  // duplicate email error
-  if (err.code === 11000) {
-    errors.email = 'that email is already registered';
-    // errors = checkIfUserExists(username, email)
-    return errors;
-  }
-
-  // validation errors
-  if (err.message.includes('user validation failed')) {
-    // console.log(err);
-    Object.values(err.errors).forEach(({ properties }) => {
-      // console.log(val);
-      // console.log(properties);
-      errors[properties.path] = properties.message;
-    });
-  }
-
-  return errors;
 }
 
 
