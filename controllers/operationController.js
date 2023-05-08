@@ -28,13 +28,13 @@ const pay = async(req,res)=>{
   // console.log(user);
 
   const {paymentType, balance} = req.body;
-  console.log(paymentOption);
+  console.log(paymentType);
   console.log(balance);
 
   if (paymentType === "wallet"){
       user.balance -= balance;
       console.log(user.balance);
-      await User.updateOne({_id: user._id }, { $set: { balance: user.balance }}); 
+      await User.updateOne({_id: req.params.id }, { $set: { balance: user.balance }}); 
   }
   else if (paymentType === "credit"){
       
