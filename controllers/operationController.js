@@ -22,12 +22,12 @@ const getOperation = async (req, res) => {
 
 
 const createOperation = async (req, res) => {
-  const {username, amount} = req.body.username;
+  const {username, amount} = req.body;
   console.log(username, amount);
   
   try {
 
-    const user = await User.findById(username);
+    const user = await User.findOne({userName: username});
     const operation = await Operation.create(req.body);
 
     console.log(user);
@@ -44,7 +44,7 @@ const createOperation = async (req, res) => {
       console.log(user.balance);
       await User.updateOne({userName: username }, { $set: { balance: user.balance }}); 
     }
-    else{
+    else if (paymentOption == "credit"){
 
       try{
         user.creditCard.balance -= amount;
@@ -60,7 +60,7 @@ const createOperation = async (req, res) => {
       
     }
 
-    res.status(200).json(operation, {status: true});
+    res.status(200).json({operation: operation, status: true});
   } catch (err) {
     res.status(403).json({ message: err, status: false });
   }

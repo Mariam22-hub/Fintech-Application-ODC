@@ -22,25 +22,29 @@ const getCard = async (req, res) => {
 const createCard = async (req, res) => {
     try {
       const user = await User.findById(req.params.id); // assuming authenticateToken middleware has been used to set req.user
-      const {amount} = req.body; 
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const { balance } = req.body; 
+      console.log(balance);
       
       const newCard = new Card(req.body);
-      console.log(newCard)
-      
-      // save card id to user schema
-      user.creditCard = newCard._id;
       newCard.user = user._id;
-      user.cardNumber = newCard.creditNumber;
+      await newCard.save();
+      
+      const newBalance = ((user.balance) - balance);
   
-      user.balance -= amount;
-      const newBalance = user.balance;
-  
-      await User.updateOne({_id: req.body._id }, { $set: { balance: newBalance }});
-      await User.updateOne({_id: req.body._id }, { $set: { cardNumber: newCard.creditNumber }});
-  
-      // await user.save();
-      // await newCard.save();
-  
+      await User.updateOne({_id: req.params.id }, { $set: 
+        { 
+          balance: newBalance, 
+          cardNumber: newCard.creditNumber,
+          creditCard : newCard._id
+        }
+      });
+
+      
       res.status(201).json({ 
         message: 'Card created successfully',
         cardNumber: newCard.creditNumber 

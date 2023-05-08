@@ -9,6 +9,6 @@ const {
 } = require("../controllers/creditController");
 
 router.route("/").get(getCards)
-router.route("/:id").get(getCard).put(updateCard).delete(deleteCard).post(createCard);;
+router.route("/:id").get(getCard).put(updateCard).delete(deleteCard).post(createCard);
 
 module.exports = router;
