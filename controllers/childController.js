@@ -69,6 +69,7 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   const child = await Child.findOne({ email: req.body.email });
+  
   if (!child || !(await bcrypt.compare(req.body.password, child.password))) {
     res.status(404).json({ message: "Wrong Email or Password" });
   } else {
