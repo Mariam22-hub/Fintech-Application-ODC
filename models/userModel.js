@@ -63,12 +63,6 @@ const userSchema = new mongoose.Schema(
       default: [],
       ref: "Operation"
     },
-    childs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Child",
-      },
-    ],
     passwordResetToken: String,
     passwordResetExpires: Date,
   },

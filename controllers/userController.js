@@ -127,7 +127,7 @@ const sendVerification = ({_id, email}, res)=>{
   }
 }
 
-
+// a sign up funciton without email verification used in the mobile application
 const signup = async (req, res) => {
 
 

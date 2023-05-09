@@ -57,6 +57,10 @@ const childSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
+    creditCard: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Card'
+    },
     passwordResetToken: String,
     passwordResetExpires: Date,
   },

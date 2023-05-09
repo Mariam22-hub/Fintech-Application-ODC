@@ -35,6 +35,9 @@ const operationSchema = new mongoose.Schema(
     operationDate: {
       type: Date,
       default: Date.now()
+    },
+    role: {
+      type: String
     }
   }
   // { timestamps: true }

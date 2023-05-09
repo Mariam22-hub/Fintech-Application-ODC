@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const Child = require("../models/childModel");
+const User = require("../models/userModel");
 const sendEmail = require("../utils/sendEmail");
 
 const getChilds = async (req, res) => {
@@ -22,6 +23,8 @@ const getChild = async (req, res) => {
   }
 };
 
+//creating a child using the id of a parent user in the request params (considering the parent will be the one
+// creating the child's account )
 const createChild = async (req, res) => {
   if (
     (await Child.findOne({ email: req.body.email })) ||
@@ -29,7 +32,12 @@ const createChild = async (req, res) => {
   ) {
     res.status(403).json({ message: "Email or Username is already exist" });
   } else {
-    const child = await Child.create(req.body);
+    const user = await User.findById(req.params.id);
+    const child = new Child(req.body);
+
+    child.userId = user;
+    child.save();
+
     res.status(200).json(child);
   }
 };
@@ -59,7 +67,12 @@ const signup = async (req, res) => {
   ) {
     res.status(403).json({ message: "Email is already registed" });
   } else {
-    const child = await Child.create(req.body);
+    const user = await User.findById(req.body.userId);
+    const child = new Child(req.body);
+
+    child.userId = user;
+    child.save();
+
     const token = jwt.sign({ childId: child._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: process.env.JWT_EXPIRE_TIME,
     });
