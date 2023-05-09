@@ -94,21 +94,32 @@ const pay = async(req,res)=>{
 // this api is responsible for saving all activity records into the databse.
 // it's called everytime a user makes on operation (i.e purchasing, paying a service, transferring money..etc)
 const createActivityRecord = async (req, res) => {
-  const {username} = req.body;
+  const {username, transaction, receiever} = req.body;
   
   try {
     // const user = await User.findOne({userName: username}).populate("creditCard");
     const user = await User.findOne({userName: username});
-    
+    let recieverUser;
+
     if (!user){
       return res.status(404).json({message: "User doesn't exist", status: false});
     }
-    
+
     //creating a new operation/activity document
     const operation = new Operation(req.body);
 
     // storing the object of user in the operations schema
     operation.userId = user;
+
+    if (transaction === "transfer"){
+      recieverUser = await User.findOne({recieverUsername: receiever});
+
+      if (!recieverUser){
+        return res.status(404).json({message: "Receiever User doesn't exist", status: false});
+      }
+
+      operation.recieverUserId = recieverUser;
+    }
 
     operation.save();
 

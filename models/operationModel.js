@@ -6,13 +6,25 @@ const operationSchema = new mongoose.Schema(
       type: String,
     },
 
+    recieverUsername: {
+      type: String,
+    },
+
+    to: {
+      type: String,
+    },
+
+    from: {
+      type: String,
+    },
+
     transactionName: {
       type: String,
     },
     
     Details: {
       type: String
-      },
+    },
     
     amount:{
       type: Number
@@ -23,6 +35,11 @@ const operationSchema = new mongoose.Schema(
     },
     
     userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+
+    recieverUserId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
