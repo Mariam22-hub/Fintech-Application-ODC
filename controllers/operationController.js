@@ -111,7 +111,7 @@ const createActivityRecord = async (req, res) => {
     // storing the object of user in the operations schema
     operation.userId = user;
 
-    if (transaction === "transfer"){
+    if (transactionName === "transfer"){
       recieverUser = await User.findOne({recieverUsername: reciever});
 
       if (!recieverUser){
