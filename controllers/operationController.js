@@ -112,7 +112,7 @@ const createActivityRecord = async (req, res) => {
     operation.userId = user;
 
     if (transactionName === "transfer"){
-      recieverUser = await User.findOne({recieverUsername: recieverUsername});
+      recieverUser = await User.findOne({userName: recieverUsername});
 
       if (!recieverUser){
         return res.status(404).json({message: "Receiever User doesn't exist", status: false});
