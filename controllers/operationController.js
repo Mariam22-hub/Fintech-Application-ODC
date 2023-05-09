@@ -10,7 +10,7 @@ const getActivities = async (req, res) => {
     const {transactionName, username} = req.body;
     
     //finding desired operations
-    const operations = await Operation.find({username: username});
+    const operations = await Operation.find({transactionName: transactionName, username: username});
     
     res.status(200).json(operations);
   } catch (error) {
