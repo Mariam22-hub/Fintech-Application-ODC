@@ -20,8 +20,8 @@ To get started with this project, follow these steps:
 1. Clone the repository:
 
    ```bash
-   git clone [Your-Repository-URL]
-   cd [Your-Repository-Directory]
+   git clone [Repository-URL]
+   cd [Repository-Directory]
 
 2. Create a .env file in the root directory and add the necessary environment variables:
 ```
